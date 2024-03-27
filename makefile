@@ -14,4 +14,4 @@ tidy:
 	go mod tidy
 
 migrate:
-	go run ./pkg/db/main.go
+	go run ./cmd/migrate/main.go
