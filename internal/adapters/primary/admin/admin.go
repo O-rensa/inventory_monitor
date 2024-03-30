@@ -6,12 +6,12 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/mux"
-	ap_auth "github.com/o-rensa/iv/internal/adapters/primary/auth"
 	ap_shared "github.com/o-rensa/iv/internal/adapters/primary/shared"
 	c_admin "github.com/o-rensa/iv/internal/core/admin"
 	c_sharedTypes "github.com/o-rensa/iv/internal/core/sharedtypes"
 	pp_admin "github.com/o-rensa/iv/internal/ports/primary/admin"
 	ps_admin "github.com/o-rensa/iv/internal/ports/secondary/admin"
+	"github.com/o-rensa/iv/pkg/middlewares"
 )
 
 type AdminHandler struct {
@@ -27,6 +27,7 @@ func (ah *AdminHandler) RegisterRoutes(router *mux.Router) {
 	subrouter := router.PathPrefix("/admin").Subrouter()
 
 	subrouter.HandleFunc("/create", ah.CreateAdminHandler).Methods(http.MethodPost)
+	subrouter.HandleFunc("/updatepassword", ah.ChangeAdminPasswordHandler).Methods(http.MethodPost)
 }
 
 func (ah *AdminHandler) CreateAdminHandler(w http.ResponseWriter, r *http.Request) {
@@ -51,7 +52,7 @@ func (ah *AdminHandler) CreateAdminHandler(w http.ResponseWriter, r *http.Reques
 	}
 
 	// hash password
-	hashedPassword, err := ap_auth.HashPassword(payload.UnhashedPassword)
+	hashedPassword, err := middlewares.HashPassword(payload.UnhashedPassword)
 	if err != nil {
 		ap_shared.WriteError(w, http.StatusInternalServerError, err)
 	}
@@ -68,4 +69,47 @@ func (ah *AdminHandler) CreateAdminHandler(w http.ResponseWriter, r *http.Reques
 	}
 
 	ap_shared.WriteJSON(w, http.StatusCreated, nil)
+}
+
+func (ah *AdminHandler) ChangeAdminPasswordHandler(w http.ResponseWriter, r *http.Request) {
+	// decode request and store into update password payload
+	var pl pp_admin.UpdateAdminPasswordPayload
+	if err := ap_shared.ParseJSON(r, &pl); err != nil {
+		ap_shared.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	// validate payload
+	if err := ap_shared.Validate.Struct(pl); err != nil {
+		errors := err.(validator.ValidationErrors)
+		ap_shared.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload: %v", errors))
+		return
+	}
+
+	// get admin by ID
+	a, err := ah.adminStore.GetAdminByID(pl.ID)
+	if err != nil {
+		ap_shared.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	// validate password
+	if cp := middlewares.ComparePasswords(a.ID.String(), pl.UnhashedOldPassword); !cp {
+		ap_shared.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid old password"))
+		return
+	}
+
+	// hash new password
+	hashedNP, err := middlewares.HashPassword(pl.NewUnhashedPassword)
+	if err != nil {
+		ap_shared.WriteError(w, http.StatusInternalServerError, fmt.Errorf("failed to hash new password"))
+	}
+
+	// update to new password
+	updateErr := ah.adminStore.UpdateAdminPassword(pl.ID, hashedNP)
+	if updateErr != nil {
+		ap_shared.WriteError(w, http.StatusInternalServerError, updateErr)
+	}
+
+	ap_shared.WriteJSON(w, http.StatusAccepted, nil)
 }

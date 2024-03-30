@@ -1,4 +1,4 @@
-package ap_auth
+package middlewares
 
 import "golang.org/x/crypto/bcrypt"
 
