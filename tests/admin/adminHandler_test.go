@@ -82,8 +82,9 @@ func (m *mockAdminStore) CreateAdmin(a *c_admin.Admin) error {
 	return nil
 }
 
-func (m *mockAdminStore) GetAdminByUsername(username string) error {
-	return nil
+func (m *mockAdminStore) GetAdminByUsername(username string) (*c_admin.Admin, error) {
+	av := &c_admin.Admin{}
+	return av, nil
 }
 
 func (m *mockAdminStore) GetAdminByID(Id uuid.UUID) (*c_admin.Admin, error) {

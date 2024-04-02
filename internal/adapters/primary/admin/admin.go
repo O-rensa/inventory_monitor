@@ -6,11 +6,13 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/mux"
+	ap_auth "github.com/o-rensa/iv/internal/adapters/primary/auth"
 	ap_shared "github.com/o-rensa/iv/internal/adapters/primary/shared"
 	c_admin "github.com/o-rensa/iv/internal/core/admin"
 	c_sharedTypes "github.com/o-rensa/iv/internal/core/sharedtypes"
 	pp_admin "github.com/o-rensa/iv/internal/ports/primary/admin"
 	ps_admin "github.com/o-rensa/iv/internal/ports/secondary/admin"
+	"github.com/o-rensa/iv/pkg/configs"
 	"github.com/o-rensa/iv/pkg/middlewares"
 )
 
@@ -27,7 +29,8 @@ func (ah *AdminHandler) RegisterRoutes(router *mux.Router) {
 	subrouter := router.PathPrefix("/admin").Subrouter()
 
 	subrouter.HandleFunc("/create", ah.CreateAdminHandler).Methods(http.MethodPost)
-	subrouter.HandleFunc("/updatepassword", ah.ChangeAdminPasswordHandler).Methods(http.MethodPost)
+	subrouter.HandleFunc("/updatepassword", ap_auth.WithJWTAuth(ah.ChangeAdminPasswordHandler, ah.adminStore)).Methods(http.MethodPost)
+	subrouter.HandleFunc("/login", ah.handleLogin).Methods(http.MethodPost)
 }
 
 func (ah *AdminHandler) CreateAdminHandler(w http.ResponseWriter, r *http.Request) {
@@ -46,7 +49,7 @@ func (ah *AdminHandler) CreateAdminHandler(w http.ResponseWriter, r *http.Reques
 	}
 
 	// check if username exists
-	err := ah.adminStore.GetAdminByUsername(payload.Username)
+	_, err := ah.adminStore.GetAdminByUsername(payload.Username)
 	if err == nil {
 		ap_shared.WriteError(w, http.StatusBadRequest, fmt.Errorf("admin with username %s already exists", payload.Username))
 	}
@@ -112,4 +115,44 @@ func (ah *AdminHandler) ChangeAdminPasswordHandler(w http.ResponseWriter, r *htt
 	}
 
 	ap_shared.WriteJSON(w, http.StatusAccepted, nil)
+}
+
+func (ah *AdminHandler) handleLogin(w http.ResponseWriter, r *http.Request) {
+	var admin pp_admin.LogInAdminPayload
+
+	// parser request to payload
+	if err := ap_shared.ParseJSON(r, &admin); err != nil {
+		ap_shared.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	// validate payload
+	if err := ap_shared.Validate.Struct(admin); err != nil {
+		errors := err.(validator.ValidationErrors)
+		ap_shared.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid payload %v", errors))
+		return
+	}
+
+	// get admin by username
+	a, err := ah.adminStore.GetAdminByUsername(admin.Username)
+	if err != nil {
+		ap_shared.WriteError(w, http.StatusBadRequest, fmt.Errorf("username or password not found"))
+		return
+	}
+
+	// check password
+	if !middlewares.ComparePasswords((*a).HashedPassword, admin.UnhashedPassword) {
+		ap_shared.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid password"))
+		return
+	}
+
+	// create a jwt token
+	secret := []byte(configs.Configs.JWTSecret)
+	token, err := ap_auth.CreateJWT(secret, a.ID)
+	if err != nil {
+		ap_shared.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	ap_shared.WriteJSON(w, http.StatusOK, map[string]string{"token": token})
 }

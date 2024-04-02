@@ -13,3 +13,8 @@ type UpdateAdminPasswordPayload struct {
 	UnhashedOldPassword string    `json:"oldPassword" validate:"required"`
 	NewUnhashedPassword string    `json:"newPassword" validate:"required"`
 }
+
+type LogInAdminPayload struct {
+	Username         string `json:"username" validate:"required"`
+	UnhashedPassword string `json:"password" validate:"required"`
+}

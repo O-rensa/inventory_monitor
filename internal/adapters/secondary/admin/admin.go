@@ -36,11 +36,12 @@ func (as *AdminStore) CreateAdmin(admin *c_admin.Admin) error {
 	return nil
 }
 
-func (as *AdminStore) GetAdminByUsername(username string) error {
+func (as *AdminStore) GetAdminByUsername(username string) (*c_admin.Admin, error) {
 	// find admin where username = username payload
-	gdb := as.db.Where("username = ?", username).First(&c_admin.Admin{})
+	var a c_admin.Admin
+	gdb := as.db.Where("username = ?", username).First(&a)
 
-	return gdb.Error
+	return &a, gdb.Error
 }
 
 func (as *AdminStore) GetAdminByID(ID uuid.UUID) (*c_admin.Admin, error) {

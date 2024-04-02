@@ -7,7 +7,7 @@ import (
 
 type AdminStore interface {
 	CreateAdmin(*c_admin.Admin) error
-	GetAdminByUsername(string) error
+	GetAdminByUsername(string) (*c_admin.Admin, error)
 	GetAdminByID(uuid.UUID) (*c_admin.Admin, error)
 	UpdateAdminPassword(uuid.UUID, string) error
 }
