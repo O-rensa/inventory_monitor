@@ -30,7 +30,7 @@ func (ah *AdminHandler) RegisterRoutes(router *mux.Router) {
 
 	subrouter.HandleFunc("/create", ah.CreateAdminHandler).Methods(http.MethodPost)
 	subrouter.HandleFunc("/updatepassword", ap_auth.WithJWTAuth(ah.ChangeAdminPasswordHandler, ah.adminStore)).Methods(http.MethodPost)
-	subrouter.HandleFunc("/login", ah.handleLogin).Methods(http.MethodPost)
+	subrouter.HandleFunc("/login", ah.HandleLogin).Methods(http.MethodPost)
 }
 
 func (ah *AdminHandler) CreateAdminHandler(w http.ResponseWriter, r *http.Request) {
@@ -117,7 +117,7 @@ func (ah *AdminHandler) ChangeAdminPasswordHandler(w http.ResponseWriter, r *htt
 	ap_shared.WriteJSON(w, http.StatusAccepted, nil)
 }
 
-func (ah *AdminHandler) handleLogin(w http.ResponseWriter, r *http.Request) {
+func (ah *AdminHandler) HandleLogin(w http.ResponseWriter, r *http.Request) {
 	var admin pp_admin.LogInAdminPayload
 
 	// parser request to payload

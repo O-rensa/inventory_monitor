@@ -95,6 +95,3 @@ func (m *mockAdminStore) GetAdminByID(Id uuid.UUID) (*c_admin.Admin, error) {
 func (m *mockAdminStore) UpdateAdminPassword(Id uuid.UUID, np string) error {
 	return nil
 }
-
-// 	UpdateAdminPassword(uuid.UUID, string) error
-// }

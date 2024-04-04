@@ -5,6 +5,6 @@ import c_sharedTypes "github.com/o-rensa/iv/internal/core/sharedtypes"
 type Admin struct {
 	*c_sharedTypes.ModelID
 	*c_sharedTypes.BaseModel
-	Username       string `gorm:"username;type:unique"`
+	Username       string `gorm:"username;unique"`
 	HashedPassword string `gorm:"hashedPassword"`
 }
