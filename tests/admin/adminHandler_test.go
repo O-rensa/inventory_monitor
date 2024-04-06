@@ -2,6 +2,7 @@ package tests
 
 import (
 	"bytes"
+	"errors"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -18,9 +19,9 @@ func TestCreateAdminServiceHandler(t *testing.T) {
 	handler := ap_admin.NewAdminHandler(store)
 	apiUrl := "/create"
 
-	noUsernameCase := []byte(`"{password: qwerty}"`)
-	noPasswordCase := []byte(`"{username: admin}"`)
-	validCase := []byte(`"{username: admin, password: qewerty}"`)
+	noUsernameCase := []byte(`{"password": "qwerty"}`)
+	noPasswordCase := []byte(`{"username": "admin"}`)
+	validCase := []byte(`{"username": "admin", "password": "qwerty"}`)
 
 	t.Run("should fail because username is missing", func(t *testing.T) {
 		req, err := http.NewRequest(http.MethodPost, apiUrl, bytes.NewBuffer(noUsernameCase))
@@ -36,6 +37,7 @@ func TestCreateAdminServiceHandler(t *testing.T) {
 		router.ServeHTTP(rr, req)
 
 		if rr.Code != http.StatusBadRequest {
+			t.Errorf("%v", (rr.Body))
 			t.Errorf("expected status code %d, got %d", http.StatusBadRequest, rr.Code)
 		}
 	})
@@ -53,6 +55,7 @@ func TestCreateAdminServiceHandler(t *testing.T) {
 
 		router.ServeHTTP(rr, req)
 		if rr.Code != http.StatusBadRequest {
+			t.Errorf("%v", (rr.Body))
 			t.Errorf("expected status code %d, got %d", http.StatusBadRequest, rr.Code)
 		}
 	})
@@ -69,8 +72,9 @@ func TestCreateAdminServiceHandler(t *testing.T) {
 		router.HandleFunc(apiUrl, handler.CreateAdminHandler).Methods(http.MethodPost)
 
 		router.ServeHTTP(rr, req)
-		if rr.Code != http.StatusOK {
-			t.Errorf("expected status code %d, got %d", http.StatusOK, rr.Code)
+		if rr.Code != http.StatusCreated {
+			t.Errorf("%v", (rr.Body))
+			t.Errorf("expected status code %d, got %d", http.StatusCreated, rr.Code)
 		}
 	})
 
@@ -84,7 +88,7 @@ func (m *mockAdminStore) CreateAdmin(a *c_admin.Admin) error {
 
 func (m *mockAdminStore) GetAdminByUsername(username string) (*c_admin.Admin, error) {
 	av := &c_admin.Admin{}
-	return av, nil
+	return av, errors.New("error")
 }
 
 func (m *mockAdminStore) GetAdminByID(Id uuid.UUID) (*c_admin.Admin, error) {

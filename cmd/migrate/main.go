@@ -14,7 +14,7 @@ import (
 
 var modelsToMigrate = []interface{}{
 	&c_admin.Admin{},
-	&c_brands.Brands{},
+	&c_brands.Brand{},
 	&c_productcategories.ProductCategory{},
 	&c_products.Product{},
 }

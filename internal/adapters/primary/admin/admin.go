@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	ap_auth "github.com/o-rensa/iv/internal/adapters/primary/auth"
 	ap_shared "github.com/o-rensa/iv/internal/adapters/primary/shared"
@@ -89,8 +90,11 @@ func (ah *AdminHandler) ChangeAdminPasswordHandler(w http.ResponseWriter, r *htt
 		return
 	}
 
+	// convert string to uuid
+	aID := uuid.MustParse(pl.ID)
+
 	// get admin by ID
-	a, err := ah.adminStore.GetAdminByID(pl.ID)
+	a, err := ah.adminStore.GetAdminByID(aID)
 	if err != nil {
 		ap_shared.WriteError(w, http.StatusBadRequest, err)
 		return
@@ -109,7 +113,7 @@ func (ah *AdminHandler) ChangeAdminPasswordHandler(w http.ResponseWriter, r *htt
 	}
 
 	// update to new password
-	updateErr := ah.adminStore.UpdateAdminPassword(pl.ID, hashedNP)
+	updateErr := ah.adminStore.UpdateAdminPassword(aID, hashedNP)
 	if updateErr != nil {
 		ap_shared.WriteError(w, http.StatusInternalServerError, updateErr)
 	}

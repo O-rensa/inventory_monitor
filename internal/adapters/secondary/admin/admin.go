@@ -19,21 +19,17 @@ func NewAdminStore(db *sql.DB) (*AdminStore, error) {
 	gormDB, err := gorm.Open(postgres.New(postgres.Config{
 		Conn: db,
 	}), &gorm.Config{})
-	if err != nil {
-		return adminStore, err
+	if err == nil {
+		adminStore.db = gormDB
 	}
 
-	adminStore.db = gormDB
 	return adminStore, nil
 }
 
 func (as *AdminStore) CreateAdmin(admin *c_admin.Admin) error {
 	result := as.db.Create(admin)
-	if result.Error != nil {
-		return result.Error
-	}
 
-	return nil
+	return result.Error
 }
 
 func (as *AdminStore) GetAdminByUsername(username string) (*c_admin.Admin, error) {
@@ -44,10 +40,10 @@ func (as *AdminStore) GetAdminByUsername(username string) (*c_admin.Admin, error
 	return &a, gdb.Error
 }
 
-func (as *AdminStore) GetAdminByID(ID uuid.UUID) (*c_admin.Admin, error) {
+func (as *AdminStore) GetAdminByID(iD uuid.UUID) (*c_admin.Admin, error) {
 	// find admin by ID
 	var admin c_admin.Admin
-	gdb := as.db.First(&admin, "ID = ?", ID.String())
+	gdb := as.db.First(&admin, "id = ?", iD.String())
 	return &admin, gdb.Error
 }
 
