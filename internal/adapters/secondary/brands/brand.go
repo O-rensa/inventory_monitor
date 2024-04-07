@@ -70,13 +70,24 @@ func (bs *BrandStore) GetBrandByID(iD uuid.UUID) (*pp_brands.BrandDto, error) {
 	return dto, res.Error
 }
 
-func (bs *BrandStore) UpdateBrand(brand *c_brands.Brand) (*pp_brands.BrandDto, error) {
+func (bs *BrandStore) UpdateBrand(input *c_brands.Brand) (*pp_brands.BrandDto, error) {
 	var dto *pp_brands.BrandDto
-	res := bs.db.Save(brand)
+	var brand c_brands.Brand
+
+	// get brand by id
+	gdb := bs.db.First(&brand, "id = ?", input.ModelID.ID.String())
+	if gdb.Error != nil {
+		return dto, gdb.Error
+	}
+
+	// update brand item
+	res := bs.db.Model(&brand).Updates(map[string]interface{}{
+		"brandName": input.BrandName,
+	})
 	if res.Error == nil {
 		dto = &pp_brands.BrandDto{
-			BrandID:   brand.ID.String(),
-			BrandName: brand.BrandName,
+			BrandID:   input.ID.String(),
+			BrandName: input.BrandName,
 		}
 	}
 	return dto, res.Error

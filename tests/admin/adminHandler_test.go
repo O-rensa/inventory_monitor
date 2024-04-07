@@ -3,7 +3,6 @@ package tests
 import (
 	"bytes"
 	"errors"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -26,7 +25,7 @@ func TestCreateAdminServiceHandler(t *testing.T) {
 	t.Run("should fail because username is missing", func(t *testing.T) {
 		req, err := http.NewRequest(http.MethodPost, apiUrl, bytes.NewBuffer(noUsernameCase))
 		if err != nil {
-			log.Fatal(err)
+			t.Fatal(err)
 		}
 		defer req.Body.Close()
 
@@ -37,7 +36,7 @@ func TestCreateAdminServiceHandler(t *testing.T) {
 		router.ServeHTTP(rr, req)
 
 		if rr.Code != http.StatusBadRequest {
-			t.Errorf("%v", (rr.Body))
+			t.Error(rr.Body)
 			t.Errorf("expected status code %d, got %d", http.StatusBadRequest, rr.Code)
 		}
 	})
@@ -45,7 +44,7 @@ func TestCreateAdminServiceHandler(t *testing.T) {
 	t.Run("should fail because password is missing", func(t *testing.T) {
 		req, err := http.NewRequest(http.MethodPost, apiUrl, bytes.NewBuffer(noPasswordCase))
 		if err != nil {
-			log.Fatal(err)
+			t.Fatal(err)
 		}
 		defer req.Body.Close()
 
@@ -55,7 +54,7 @@ func TestCreateAdminServiceHandler(t *testing.T) {
 
 		router.ServeHTTP(rr, req)
 		if rr.Code != http.StatusBadRequest {
-			t.Errorf("%v", (rr.Body))
+			t.Error(rr.Body)
 			t.Errorf("expected status code %d, got %d", http.StatusBadRequest, rr.Code)
 		}
 	})
@@ -63,7 +62,7 @@ func TestCreateAdminServiceHandler(t *testing.T) {
 	t.Run("should not fail cause payload is valid", func(t *testing.T) {
 		req, err := http.NewRequest(http.MethodPost, apiUrl, bytes.NewBuffer(validCase))
 		if err != nil {
-			log.Fatal(err)
+			t.Fatal(err)
 		}
 		defer req.Body.Close()
 
@@ -73,7 +72,7 @@ func TestCreateAdminServiceHandler(t *testing.T) {
 
 		router.ServeHTTP(rr, req)
 		if rr.Code != http.StatusCreated {
-			t.Errorf("%v", (rr.Body))
+			t.Error(rr.Body)
 			t.Errorf("expected status code %d, got %d", http.StatusCreated, rr.Code)
 		}
 	})

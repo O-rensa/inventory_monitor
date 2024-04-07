@@ -30,7 +30,7 @@ func (bh *BrandHandler) RegisterRoutes(router *mux.Router) {
 	sr := router.PathPrefix("/brands").Subrouter()
 
 	sr.HandleFunc("/create", ap_auth.WithJWTAuth(bh.CreateBrandHandler, bh.adminStore)).Methods(http.MethodPost)
-	sr.HandleFunc("/get", ap_auth.WithJWTAuth(bh.GetAllBrandsHandler, bh.adminStore)).Methods(http.MethodGet)
+	sr.HandleFunc("/getall", ap_auth.WithJWTAuth(bh.GetAllBrandsHandler, bh.adminStore)).Methods(http.MethodGet)
 	sr.HandleFunc("/get/{iD}", ap_auth.WithJWTAuth(bh.GetBrandByIDHandler, bh.adminStore)).Methods(http.MethodGet)
 	sr.HandleFunc("/update", ap_auth.WithJWTAuth(bh.UpdateBrandHandler, bh.adminStore)).Methods(http.MethodPut)
 	sr.HandleFunc("/delete/{iD}", ap_auth.WithJWTAuth(bh.DeleteBrandHandler, bh.adminStore)).Methods(http.MethodDelete)

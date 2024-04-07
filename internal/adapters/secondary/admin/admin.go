@@ -50,7 +50,7 @@ func (as *AdminStore) GetAdminByID(iD uuid.UUID) (*c_admin.Admin, error) {
 func (as *AdminStore) UpdateAdminPassword(ID uuid.UUID, newHashedPassword string) error {
 	// find admin by ID
 	var admin c_admin.Admin
-	gdb := as.db.First(&admin, "ID = ?", ID.String())
+	gdb := as.db.First(&admin, "id = ?", ID.String())
 	if gdb.Error != nil {
 		return gdb.Error
 	}
