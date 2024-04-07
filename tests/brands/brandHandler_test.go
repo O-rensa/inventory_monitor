@@ -3,7 +3,6 @@ package tests
 import (
 	"bytes"
 	"errors"
-	"fmt"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -145,7 +144,6 @@ func TestUpdateBrandHandler(t *testing.T) {
 			t.Fatal(err)
 		}
 		defer req.Body.Close()
-		fmt.Println(req.Body)
 		rr := httptest.NewRecorder()
 		router := mux.NewRouter()
 		router.HandleFunc(apiUrl, handler.UpdateBrandHandler).Methods(http.MethodPut)
