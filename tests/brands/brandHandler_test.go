@@ -11,15 +11,15 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
-	ap_brands "github.com/o-rensa/iv/internal/adapters/primary/brands"
+	ap_brand "github.com/o-rensa/iv/internal/adapters/primary/brands"
 	c_admin "github.com/o-rensa/iv/internal/core/admin"
 	c_brands "github.com/o-rensa/iv/internal/core/brands"
-	pp_brands "github.com/o-rensa/iv/internal/ports/primary/brands"
+	pp_brand "github.com/o-rensa/iv/internal/ports/primary/brands"
 )
 
 var brandStore = &mockBrandStore{}
 var adminStore = &mockAdminStore{}
-var handler = ap_brands.NewBrandHandler(brandStore, adminStore)
+var handler = ap_brand.NewBrandHandler(brandStore, adminStore)
 var mockUUID = uuid.MustParse("56bd6b24-83e5-4da7-ab26-e45cbe0aa8b6")
 var wrongUUID = "7e742f61-58ed-4072-9980-b4170176ca44"
 
@@ -221,20 +221,20 @@ func TestDeleteBrandHandler(t *testing.T) {
 // mock brand store
 type mockBrandStore struct{}
 
-func (m *mockBrandStore) CreateBrand(i c_brands.Brand) (pp_brands.BrandDto, error) {
-	dto := pp_brands.BrandDto{}
+func (m *mockBrandStore) CreateBrand(i c_brands.Brand) (pp_brand.BrandDto, error) {
+	dto := pp_brand.BrandDto{}
 	dto.BrandID = i.ModelID.ID.String()
 	dto.BrandName = i.BrandName
 	return dto, nil
 }
 
-func (m *mockBrandStore) GetAllBrands() ([]pp_brands.BrandDto, error) {
-	dtos := []pp_brands.BrandDto{}
+func (m *mockBrandStore) GetAllBrands() ([]pp_brand.BrandDto, error) {
+	dtos := []pp_brand.BrandDto{}
 	return dtos, nil
 }
 
-func (m *mockBrandStore) GetBrandByID(i uuid.UUID) (pp_brands.BrandDto, error) {
-	dto := pp_brands.BrandDto{}
+func (m *mockBrandStore) GetBrandByID(i uuid.UUID) (pp_brand.BrandDto, error) {
+	dto := pp_brand.BrandDto{}
 	if i != mockUUID {
 		return dto, errors.New("id did not match to mockUUID")
 	}
@@ -243,8 +243,8 @@ func (m *mockBrandStore) GetBrandByID(i uuid.UUID) (pp_brands.BrandDto, error) {
 	return dto, nil
 }
 
-func (m *mockBrandStore) UpdateBrand(i c_brands.Brand) (pp_brands.BrandDto, error) {
-	dto := pp_brands.BrandDto{}
+func (m *mockBrandStore) UpdateBrand(i c_brands.Brand) (pp_brand.BrandDto, error) {
+	dto := pp_brand.BrandDto{}
 	if i.ModelID.ID != mockUUID {
 		return dto, errors.New("not nil error")
 	}

@@ -1,4 +1,4 @@
-package c_productcategories
+package c_productcategory
 
 import c_sharedTypes "github.com/o-rensa/iv/internal/core/sharedtypes"
 

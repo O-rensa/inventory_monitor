@@ -1,4 +1,4 @@
-package ap_brands
+package ap_brand
 
 import (
 	"fmt"
@@ -9,19 +9,19 @@ import (
 	"github.com/gorilla/mux"
 	ap_auth "github.com/o-rensa/iv/internal/adapters/primary/auth"
 	ap_shared "github.com/o-rensa/iv/internal/adapters/primary/shared"
-	c_brands "github.com/o-rensa/iv/internal/core/brands"
+	c_brand "github.com/o-rensa/iv/internal/core/brands"
 	c_sharedTypes "github.com/o-rensa/iv/internal/core/sharedtypes"
-	pp_brands "github.com/o-rensa/iv/internal/ports/primary/brands"
+	pp_brand "github.com/o-rensa/iv/internal/ports/primary/brands"
 	ps_admin "github.com/o-rensa/iv/internal/ports/secondary/admin"
-	ps_brands "github.com/o-rensa/iv/internal/ports/secondary/brands"
+	ps_brand "github.com/o-rensa/iv/internal/ports/secondary/brands"
 )
 
 type BrandHandler struct {
-	brandStore ps_brands.BrandStore
+	brandStore ps_brand.BrandStore
 	adminStore ps_admin.AdminStore
 }
 
-func NewBrandHandler(brandStore ps_brands.BrandStore, adminStore ps_admin.AdminStore) *BrandHandler {
+func NewBrandHandler(brandStore ps_brand.BrandStore, adminStore ps_admin.AdminStore) *BrandHandler {
 	bh := &BrandHandler{brandStore: brandStore, adminStore: adminStore}
 	return bh
 }
@@ -38,7 +38,7 @@ func (bh *BrandHandler) RegisterRoutes(router *mux.Router) {
 
 func (bh *BrandHandler) CreateBrandHandler(w http.ResponseWriter, r *http.Request) {
 	// decode request and store into payload variable
-	var payload pp_brands.CreateBrandPayload
+	var payload pp_brand.CreateBrandPayload
 	if err := ap_shared.ParseJSON(r, &payload); err != nil {
 		ap_shared.WriteError(w, http.StatusBadRequest, err)
 		return
@@ -51,7 +51,7 @@ func (bh *BrandHandler) CreateBrandHandler(w http.ResponseWriter, r *http.Reques
 	}
 
 	// create brand
-	brand := c_brands.Brand{
+	brand := c_brand.Brand{
 		ModelID:   c_sharedTypes.NewModelID(),
 		BrandName: payload.BrandName,
 	}
@@ -91,7 +91,7 @@ func (bh *BrandHandler) GetBrandByIDHandler(w http.ResponseWriter, r *http.Reque
 }
 
 func (bh *BrandHandler) UpdateBrandHandler(w http.ResponseWriter, r *http.Request) {
-	var pl pp_brands.UpdateBrandPayload
+	var pl pp_brand.UpdateBrandPayload
 	if err := ap_shared.ParseJSON(r, &pl); err != nil {
 		ap_shared.WriteError(w, http.StatusBadRequest, err)
 		return
@@ -104,7 +104,7 @@ func (bh *BrandHandler) UpdateBrandHandler(w http.ResponseWriter, r *http.Reques
 	}
 
 	bID := uuid.MustParse(pl.BrandID)
-	b := c_brands.Brand{
+	b := c_brand.Brand{
 		ModelID:   &c_sharedTypes.ModelID{ID: bID},
 		BrandName: pl.BrandName,
 	}

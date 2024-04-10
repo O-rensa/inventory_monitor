@@ -7,7 +7,9 @@ import (
 
 	"github.com/gorilla/mux"
 	ap_admin "github.com/o-rensa/iv/internal/adapters/primary/admin"
+	ap_brand "github.com/o-rensa/iv/internal/adapters/primary/brands"
 	as_admin "github.com/o-rensa/iv/internal/adapters/secondary/admin"
+	as_brand "github.com/o-rensa/iv/internal/adapters/secondary/brands"
 )
 
 type APIServer struct {
@@ -30,6 +32,11 @@ func (s *APIServer) Run() error {
 	adminStore, _ := as_admin.NewAdminStore(s.db)
 	adminHandler := ap_admin.NewAdminHandler(adminStore)
 	adminHandler.RegisterRoutes(subrouter)
+
+	//brand
+	brandStore, _ := as_brand.NewBrandStore(s.db)
+	brandhandler := ap_brand.NewBrandHandler(brandStore, adminStore)
+	brandhandler.RegisterRoutes(subrouter)
 
 	log.Println("Listening on", s.addr)
 	return http.ListenAndServe(s.addr, router)

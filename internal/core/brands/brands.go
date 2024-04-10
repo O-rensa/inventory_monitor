@@ -1,4 +1,4 @@
-package c_brands
+package c_brand
 
 import c_sharedTypes "github.com/o-rensa/iv/internal/core/sharedtypes"
 

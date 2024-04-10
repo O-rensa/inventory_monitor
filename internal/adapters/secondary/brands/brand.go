@@ -1,11 +1,11 @@
-package ps_brand
+package as_brand
 
 import (
 	"database/sql"
 
 	"github.com/google/uuid"
-	c_brands "github.com/o-rensa/iv/internal/core/brands"
-	pp_brands "github.com/o-rensa/iv/internal/ports/primary/brands"
+	c_brand "github.com/o-rensa/iv/internal/core/brands"
+	pp_brand "github.com/o-rensa/iv/internal/ports/primary/brands"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -27,11 +27,11 @@ func NewBrandStore(db *sql.DB) (*BrandStore, error) {
 	return bs, err
 }
 
-func (bs *BrandStore) CreateBrand(brand *c_brands.Brand) (pp_brands.BrandDto, error) {
+func (bs *BrandStore) CreateBrand(brand c_brand.Brand) (pp_brand.BrandDto, error) {
 	res := bs.db.Create(brand)
-	var dto pp_brands.BrandDto
+	var dto pp_brand.BrandDto
 	if res.Error == nil {
-		dto = pp_brands.BrandDto{
+		dto = pp_brand.BrandDto{
 			BrandID:   brand.ModelID.ID.String(),
 			BrandName: brand.BrandName,
 		}
@@ -40,13 +40,13 @@ func (bs *BrandStore) CreateBrand(brand *c_brands.Brand) (pp_brands.BrandDto, er
 	return dto, res.Error
 }
 
-func (bs *BrandStore) GetAllBrands() ([]pp_brands.BrandDto, error) {
-	var brands []c_brands.Brand
-	dto := []pp_brands.BrandDto{}
+func (bs *BrandStore) GetAllBrands() ([]pp_brand.BrandDto, error) {
+	var brands []c_brand.Brand
+	dto := []pp_brand.BrandDto{}
 	res := bs.db.Find(&brands)
 	if res.Error == nil {
 		for _, v := range brands {
-			i := pp_brands.BrandDto{
+			i := pp_brand.BrandDto{
 				BrandID:   v.ModelID.ID.String(),
 				BrandName: v.BrandName,
 			}
@@ -57,12 +57,12 @@ func (bs *BrandStore) GetAllBrands() ([]pp_brands.BrandDto, error) {
 	return dto, res.Error
 }
 
-func (bs *BrandStore) GetBrandByID(iD uuid.UUID) (pp_brands.BrandDto, error) {
-	var dto pp_brands.BrandDto
-	var brand c_brands.Brand
+func (bs *BrandStore) GetBrandByID(iD uuid.UUID) (pp_brand.BrandDto, error) {
+	var dto pp_brand.BrandDto
+	var brand c_brand.Brand
 	res := bs.db.First(&brand, "id = ?", iD.String())
 	if res.Error == nil {
-		dto = pp_brands.BrandDto{
+		dto = pp_brand.BrandDto{
 			BrandID:   brand.ModelID.ID.String(),
 			BrandName: brand.BrandName,
 		}
@@ -70,9 +70,9 @@ func (bs *BrandStore) GetBrandByID(iD uuid.UUID) (pp_brands.BrandDto, error) {
 	return dto, res.Error
 }
 
-func (bs *BrandStore) UpdateBrand(input c_brands.Brand) (pp_brands.BrandDto, error) {
-	var dto pp_brands.BrandDto
-	var brand c_brands.Brand
+func (bs *BrandStore) UpdateBrand(input c_brand.Brand) (pp_brand.BrandDto, error) {
+	var dto pp_brand.BrandDto
+	var brand c_brand.Brand
 
 	// get brand by id
 	gdb := bs.db.First(&brand, "id = ?", input.ModelID.ID.String())
@@ -85,7 +85,7 @@ func (bs *BrandStore) UpdateBrand(input c_brands.Brand) (pp_brands.BrandDto, err
 		"brandName": input.BrandName,
 	})
 	if res.Error == nil {
-		dto = pp_brands.BrandDto{
+		dto = pp_brand.BrandDto{
 			BrandID:   input.ID.String(),
 			BrandName: input.BrandName,
 		}
@@ -93,6 +93,6 @@ func (bs *BrandStore) UpdateBrand(input c_brands.Brand) (pp_brands.BrandDto, err
 	return dto, res.Error
 }
 
-func (bs *BrandStore) DeleteBrandByID(iD uuid.UUID) error {
-	return (bs.db.Delete(&c_brands.Brand{}, iD)).Error
+func (bs *BrandStore) DeleteBrand(iD uuid.UUID) error {
+	return (bs.db.Delete(&c_brand.Brand{}, iD)).Error
 }

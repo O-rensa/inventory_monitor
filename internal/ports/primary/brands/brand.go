@@ -1,4 +1,4 @@
-package pp_brands
+package pp_brand
 
 type CreateBrandPayload struct {
 	BrandName string `json:"brandName" validate:"required"`
