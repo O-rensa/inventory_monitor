@@ -62,7 +62,7 @@ func (ah *AdminHandler) CreateAdminHandler(w http.ResponseWriter, r *http.Reques
 	}
 
 	// create admin
-	admin := &c_admin.Admin{
+	admin := c_admin.Admin{
 		ModelID:        c_sharedTypes.NewModelID(),
 		Username:       payload.Username,
 		HashedPassword: hashedPassword,
@@ -101,7 +101,7 @@ func (ah *AdminHandler) ChangeAdminPasswordHandler(w http.ResponseWriter, r *htt
 	}
 
 	// validate password
-	if cp := middlewares.ComparePasswords(a.ID.String(), pl.UnhashedOldPassword); !cp {
+	if cp := middlewares.ComparePasswords(a.HashedPassword, pl.UnhashedOldPassword); !cp {
 		ap_shared.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid old password"))
 		return
 	}
@@ -145,7 +145,7 @@ func (ah *AdminHandler) HandleLogin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// check password
-	if !middlewares.ComparePasswords((*a).HashedPassword, admin.UnhashedPassword) {
+	if !middlewares.ComparePasswords(a.HashedPassword, admin.UnhashedPassword) {
 		ap_shared.WriteError(w, http.StatusBadRequest, fmt.Errorf("invalid password"))
 		return
 	}

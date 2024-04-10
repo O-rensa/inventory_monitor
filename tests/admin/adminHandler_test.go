@@ -81,17 +81,17 @@ func TestCreateAdminServiceHandler(t *testing.T) {
 
 type mockAdminStore struct{}
 
-func (m *mockAdminStore) CreateAdmin(a *c_admin.Admin) error {
+func (m *mockAdminStore) CreateAdmin(a c_admin.Admin) error {
 	return nil
 }
 
-func (m *mockAdminStore) GetAdminByUsername(username string) (*c_admin.Admin, error) {
-	av := &c_admin.Admin{}
+func (m *mockAdminStore) GetAdminByUsername(username string) (c_admin.Admin, error) {
+	av := c_admin.Admin{}
 	return av, errors.New("error")
 }
 
-func (m *mockAdminStore) GetAdminByID(Id uuid.UUID) (*c_admin.Admin, error) {
-	av := &c_admin.Admin{}
+func (m *mockAdminStore) GetAdminByID(Id uuid.UUID) (c_admin.Admin, error) {
+	av := c_admin.Admin{}
 	return av, nil
 }
 

@@ -221,8 +221,8 @@ func TestDeleteBrandHandler(t *testing.T) {
 // mock brand store
 type mockBrandStore struct{}
 
-func (m *mockBrandStore) CreateBrand(i *c_brands.Brand) (*pp_brands.BrandDto, error) {
-	dto := &pp_brands.BrandDto{}
+func (m *mockBrandStore) CreateBrand(i c_brands.Brand) (pp_brands.BrandDto, error) {
+	dto := pp_brands.BrandDto{}
 	dto.BrandID = i.ModelID.ID.String()
 	dto.BrandName = i.BrandName
 	return dto, nil
@@ -233,8 +233,8 @@ func (m *mockBrandStore) GetAllBrands() ([]pp_brands.BrandDto, error) {
 	return dtos, nil
 }
 
-func (m *mockBrandStore) GetBrandByID(i uuid.UUID) (*pp_brands.BrandDto, error) {
-	dto := &pp_brands.BrandDto{}
+func (m *mockBrandStore) GetBrandByID(i uuid.UUID) (pp_brands.BrandDto, error) {
+	dto := pp_brands.BrandDto{}
 	if i != mockUUID {
 		return dto, errors.New("id did not match to mockUUID")
 	}
@@ -243,8 +243,8 @@ func (m *mockBrandStore) GetBrandByID(i uuid.UUID) (*pp_brands.BrandDto, error) 
 	return dto, nil
 }
 
-func (m *mockBrandStore) UpdateBrand(i *c_brands.Brand) (*pp_brands.BrandDto, error) {
-	dto := &pp_brands.BrandDto{}
+func (m *mockBrandStore) UpdateBrand(i c_brands.Brand) (pp_brands.BrandDto, error) {
+	dto := pp_brands.BrandDto{}
 	if i.ModelID.ID != mockUUID {
 		return dto, errors.New("not nil error")
 	}
@@ -263,17 +263,17 @@ func (m *mockBrandStore) DeleteBrand(i uuid.UUID) error {
 // mock admin store
 type mockAdminStore struct{}
 
-func (m *mockAdminStore) CreateAdmin(a *c_admin.Admin) error {
+func (m *mockAdminStore) CreateAdmin(a c_admin.Admin) error {
 	return nil
 }
 
-func (m *mockAdminStore) GetAdminByUsername(username string) (*c_admin.Admin, error) {
-	av := &c_admin.Admin{}
+func (m *mockAdminStore) GetAdminByUsername(username string) (c_admin.Admin, error) {
+	av := c_admin.Admin{}
 	return av, errors.New("error")
 }
 
-func (m *mockAdminStore) GetAdminByID(Id uuid.UUID) (*c_admin.Admin, error) {
-	av := &c_admin.Admin{}
+func (m *mockAdminStore) GetAdminByID(Id uuid.UUID) (c_admin.Admin, error) {
+	av := c_admin.Admin{}
 	return av, nil
 }
 

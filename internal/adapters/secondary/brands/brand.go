@@ -27,11 +27,11 @@ func NewBrandStore(db *sql.DB) (*BrandStore, error) {
 	return bs, err
 }
 
-func (bs *BrandStore) CreateBrand(brand *c_brands.Brand) (*pp_brands.BrandDto, error) {
+func (bs *BrandStore) CreateBrand(brand *c_brands.Brand) (pp_brands.BrandDto, error) {
 	res := bs.db.Create(brand)
-	var dto *pp_brands.BrandDto
+	var dto pp_brands.BrandDto
 	if res.Error == nil {
-		dto = &pp_brands.BrandDto{
+		dto = pp_brands.BrandDto{
 			BrandID:   brand.ModelID.ID.String(),
 			BrandName: brand.BrandName,
 		}
@@ -57,12 +57,12 @@ func (bs *BrandStore) GetAllBrands() ([]pp_brands.BrandDto, error) {
 	return dto, res.Error
 }
 
-func (bs *BrandStore) GetBrandByID(iD uuid.UUID) (*pp_brands.BrandDto, error) {
-	var dto *pp_brands.BrandDto
+func (bs *BrandStore) GetBrandByID(iD uuid.UUID) (pp_brands.BrandDto, error) {
+	var dto pp_brands.BrandDto
 	var brand c_brands.Brand
 	res := bs.db.First(&brand, "id = ?", iD.String())
 	if res.Error == nil {
-		dto = &pp_brands.BrandDto{
+		dto = pp_brands.BrandDto{
 			BrandID:   brand.ModelID.ID.String(),
 			BrandName: brand.BrandName,
 		}
@@ -70,8 +70,8 @@ func (bs *BrandStore) GetBrandByID(iD uuid.UUID) (*pp_brands.BrandDto, error) {
 	return dto, res.Error
 }
 
-func (bs *BrandStore) UpdateBrand(input *c_brands.Brand) (*pp_brands.BrandDto, error) {
-	var dto *pp_brands.BrandDto
+func (bs *BrandStore) UpdateBrand(input c_brands.Brand) (pp_brands.BrandDto, error) {
+	var dto pp_brands.BrandDto
 	var brand c_brands.Brand
 
 	// get brand by id
@@ -85,7 +85,7 @@ func (bs *BrandStore) UpdateBrand(input *c_brands.Brand) (*pp_brands.BrandDto, e
 		"brandName": input.BrandName,
 	})
 	if res.Error == nil {
-		dto = &pp_brands.BrandDto{
+		dto = pp_brands.BrandDto{
 			BrandID:   input.ID.String(),
 			BrandName: input.BrandName,
 		}

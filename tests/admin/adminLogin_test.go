@@ -80,13 +80,13 @@ func TestLogInAdminServiceHandler(t *testing.T) {
 
 type mockAdminLoginStore struct{}
 
-func (m *mockAdminLoginStore) CreateAdmin(a *c_admin.Admin) error {
+func (m *mockAdminLoginStore) CreateAdmin(a c_admin.Admin) error {
 	return nil
 }
 
-func (m *mockAdminLoginStore) GetAdminByUsername(username string) (*c_admin.Admin, error) {
+func (m *mockAdminLoginStore) GetAdminByUsername(username string) (c_admin.Admin, error) {
 	hPasswd, _ := middlewares.HashPassword("qwerty")
-	av := &c_admin.Admin{
+	av := c_admin.Admin{
 		ModelID:        c_sharedTypes.NewModelID(),
 		Username:       "admin",
 		HashedPassword: hPasswd,
@@ -94,8 +94,8 @@ func (m *mockAdminLoginStore) GetAdminByUsername(username string) (*c_admin.Admi
 	return av, nil
 }
 
-func (m *mockAdminLoginStore) GetAdminByID(Id uuid.UUID) (*c_admin.Admin, error) {
-	av := &c_admin.Admin{}
+func (m *mockAdminLoginStore) GetAdminByID(Id uuid.UUID) (c_admin.Admin, error) {
+	av := c_admin.Admin{}
 	return av, nil
 }
 

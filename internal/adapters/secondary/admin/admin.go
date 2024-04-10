@@ -26,25 +26,25 @@ func NewAdminStore(db *sql.DB) (*AdminStore, error) {
 	return adminStore, nil
 }
 
-func (as *AdminStore) CreateAdmin(admin *c_admin.Admin) error {
+func (as *AdminStore) CreateAdmin(admin c_admin.Admin) error {
 	result := as.db.Create(admin)
 
 	return result.Error
 }
 
-func (as *AdminStore) GetAdminByUsername(username string) (*c_admin.Admin, error) {
+func (as *AdminStore) GetAdminByUsername(username string) (c_admin.Admin, error) {
 	// find admin where username = username payload
 	var a c_admin.Admin
 	gdb := as.db.Where("username = ?", username).First(&a)
 
-	return &a, gdb.Error
+	return a, gdb.Error
 }
 
-func (as *AdminStore) GetAdminByID(iD uuid.UUID) (*c_admin.Admin, error) {
+func (as *AdminStore) GetAdminByID(iD uuid.UUID) (c_admin.Admin, error) {
 	// find admin by ID
 	var admin c_admin.Admin
 	gdb := as.db.First(&admin, "id = ?", iD.String())
-	return &admin, gdb.Error
+	return admin, gdb.Error
 }
 
 func (as *AdminStore) UpdateAdminPassword(ID uuid.UUID, newHashedPassword string) error {

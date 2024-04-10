@@ -7,9 +7,9 @@ import (
 )
 
 type BrandStore interface {
-	CreateBrand(*c_brands.Brand) (*pp_brands.BrandDto, error)
+	CreateBrand(c_brands.Brand) (pp_brands.BrandDto, error)
 	GetAllBrands() ([]pp_brands.BrandDto, error)
-	GetBrandByID(uuid.UUID) (*pp_brands.BrandDto, error)
-	UpdateBrand(*c_brands.Brand) (*pp_brands.BrandDto, error)
+	GetBrandByID(uuid.UUID) (pp_brands.BrandDto, error)
+	UpdateBrand(c_brands.Brand) (pp_brands.BrandDto, error)
 	DeleteBrand(uuid.UUID) error
 }

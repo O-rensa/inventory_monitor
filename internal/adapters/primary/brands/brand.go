@@ -51,7 +51,7 @@ func (bh *BrandHandler) CreateBrandHandler(w http.ResponseWriter, r *http.Reques
 	}
 
 	// create brand
-	brand := &c_brands.Brand{
+	brand := c_brands.Brand{
 		ModelID:   c_sharedTypes.NewModelID(),
 		BrandName: payload.BrandName,
 	}
@@ -87,7 +87,7 @@ func (bh *BrandHandler) GetBrandByIDHandler(w http.ResponseWriter, r *http.Reque
 		ap_shared.WriteError(w, http.StatusNotFound, err)
 	}
 
-	ap_shared.WriteJSON(w, http.StatusOK, *res)
+	ap_shared.WriteJSON(w, http.StatusOK, res)
 }
 
 func (bh *BrandHandler) UpdateBrandHandler(w http.ResponseWriter, r *http.Request) {
@@ -104,7 +104,7 @@ func (bh *BrandHandler) UpdateBrandHandler(w http.ResponseWriter, r *http.Reques
 	}
 
 	bID := uuid.MustParse(pl.BrandID)
-	b := &c_brands.Brand{
+	b := c_brands.Brand{
 		ModelID:   &c_sharedTypes.ModelID{ID: bID},
 		BrandName: pl.BrandName,
 	}
