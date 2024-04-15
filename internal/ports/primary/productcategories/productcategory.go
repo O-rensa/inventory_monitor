@@ -8,3 +8,8 @@ type ProductCategoryDto struct {
 	ProductCategoryID   string `json:"iD"`
 	ProductCategoryName string `json:"productCategoryName"`
 }
+
+type UpdateProductCategoryPayload struct {
+	ProductCategoryID   string `json:"iD"`
+	ProductCategoryName string `json:"productCategoryName"`
+}

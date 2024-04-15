@@ -85,6 +85,7 @@ func (bh *BrandHandler) GetBrandByIDHandler(w http.ResponseWriter, r *http.Reque
 	res, err := bh.brandStore.GetBrandByID(bID)
 	if err != nil {
 		ap_shared.WriteError(w, http.StatusNotFound, err)
+		return
 	}
 
 	ap_shared.WriteJSON(w, http.StatusOK, res)
@@ -128,6 +129,7 @@ func (bh *BrandHandler) DeleteBrandHandler(w http.ResponseWriter, r *http.Reques
 	bID := uuid.MustParse(str)
 	if err := bh.brandStore.DeleteBrand(bID); err != nil {
 		ap_shared.WriteError(w, http.StatusInternalServerError, fmt.Errorf("something went wrong: %v", err))
+		return
 	}
 
 	ap_shared.WriteJSON(w, http.StatusOK, nil)
