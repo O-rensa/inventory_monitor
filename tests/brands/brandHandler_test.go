@@ -49,7 +49,7 @@ func TestCreateBrandHandler(t *testing.T) {
 		}
 	})
 
-	t.Run("should succeed case payload is valid", func(t *testing.T) {
+	t.Run("should succeed cause payload is valid", func(t *testing.T) {
 		req, err := http.NewRequest(http.MethodPost, apiUrl, bytes.NewBuffer(validCase))
 		if err != nil {
 			t.Fatal(err)
@@ -85,7 +85,7 @@ func TestGetAllBrandsHandler(t *testing.T) {
 
 		router.ServeHTTP(rr, req)
 		if rr.Code != http.StatusOK {
-			t.Errorf("%v", rr.Body)
+			t.Error(rr.Body)
 			t.Errorf("expected status code %d, got %d", http.StatusOK, rr.Code)
 		}
 	})
@@ -126,7 +126,7 @@ func TestGetBrandByIDHandler(t *testing.T) {
 
 		router.ServeHTTP(rr, req)
 		if rr.Code != http.StatusOK {
-			t.Errorf("%v", rr.Body)
+			t.Error(rr.Body)
 			t.Errorf("expected status code %d, got %d", http.StatusOK, rr.Code)
 		}
 	})
