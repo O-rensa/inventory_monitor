@@ -144,6 +144,7 @@ func TestUpdateBrandHandler(t *testing.T) {
 			t.Fatal(err)
 		}
 		defer req.Body.Close()
+
 		rr := httptest.NewRecorder()
 		router := mux.NewRouter()
 		router.HandleFunc(apiUrl, handler.UpdateBrandHandler).Methods(http.MethodPut)
@@ -199,7 +200,7 @@ func TestDeleteBrandHandler(t *testing.T) {
 		}
 	})
 
-	t.Run("should succeed because if is correct", func(t *testing.T) {
+	t.Run("should succeed because id is correct", func(t *testing.T) {
 		req, err := http.NewRequest(http.MethodDelete, corrApiUrl, strings.NewReader(""))
 		if err != nil {
 			t.Fatal(err)

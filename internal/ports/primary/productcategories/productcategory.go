@@ -1,7 +1,7 @@
 package pp_productCategory
 
 type CreateProductCategoryPayload struct {
-	ProductCategoryName string `json:"productCategoryName"`
+	ProductCategoryName string `json:"productCategoryName" validate:"required"`
 }
 
 type ProductCategoryDto struct {

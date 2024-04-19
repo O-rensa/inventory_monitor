@@ -27,7 +27,7 @@ func TestCreateProductCategoryHandler(t *testing.T) {
 
 	// cases
 	noProductCategoryNameCase := []byte(`{"productCategoryName":}`)
-	validCase := []byte(`{"productCategoryName": "SuperProductCategory"}`)
+	validCase := []byte(`{"productCategoryName":"SuperProductCategory"}`)
 
 	t.Run("should fail because productCategoryName is missing", func(t *testing.T) {
 		req, err := http.NewRequest(http.MethodPost, apiUrl, bytes.NewBuffer(noProductCategoryNameCase))
@@ -47,7 +47,7 @@ func TestCreateProductCategoryHandler(t *testing.T) {
 		}
 	})
 
-	t.Run("should succedd cause payload is valid", func(t *testing.T) {
+	t.Run("should succeed cause payload is valid", func(t *testing.T) {
 		req, err := http.NewRequest(http.MethodPost, apiUrl, bytes.NewBuffer(validCase))
 		if err != nil {
 			t.Fatal(err)
@@ -114,7 +114,7 @@ func TestGetProductCategoryByIDHandler(t *testing.T) {
 		}
 	})
 
-	t.Run("should succedd because the uuid is correct", func(t *testing.T) {
+	t.Run("should succeed because the uuid is correct", func(t *testing.T) {
 		req, err := http.NewRequest(http.MethodGet, corrApiUrl, strings.NewReader(""))
 		if err != nil {
 			t.Fatal(err)
@@ -130,6 +130,93 @@ func TestGetProductCategoryByIDHandler(t *testing.T) {
 		if rr.Code != http.StatusOK {
 			t.Error(rr.Body)
 			t.Errorf("expected status code %d, got %d", http.StatusOK, rr.Code)
+		}
+	})
+}
+
+func TestUpdateProductCategoryHandler(t *testing.T) {
+	wrongPayload := []byte(`{"iD":"` + wrongUUID + `", "productCategoryName":"NewProductCategoryName"}`)
+	corrPaylod := []byte(`{"iD":"` + mockUUID.String() + `", "productCategoryName":"NewProductCategoryName"}`)
+
+	apiUrl := "/update"
+
+	t.Run("should fail because the ID is not correct", func(t *testing.T) {
+		req, err := http.NewRequest(http.MethodPut, apiUrl, bytes.NewBuffer(wrongPayload))
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer req.Body.Close()
+
+		rr := httptest.NewRecorder()
+		router := mux.NewRouter()
+		router.HandleFunc(apiUrl, handler.UpdateProductCategoryHandler).Methods(http.MethodPut)
+
+		router.ServeHTTP(rr, req)
+		if rr.Code != http.StatusInternalServerError {
+			t.Error(rr.Body)
+			t.Errorf("expected status %d, got %d", http.StatusInternalServerError, rr.Code)
+		}
+	})
+
+	t.Run("should succeed because ID is correct", func(t *testing.T) {
+		req, err := http.NewRequest(http.MethodPut, apiUrl, bytes.NewBuffer(corrPaylod))
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer req.Body.Close()
+
+		rr := httptest.NewRecorder()
+		router := mux.NewRouter()
+		router.HandleFunc(apiUrl, handler.UpdateProductCategoryHandler).Methods(http.MethodPut)
+
+		router.ServeHTTP(rr, req)
+		if rr.Code != http.StatusOK {
+			t.Error(rr.Body)
+			t.Errorf("expected status %d, got %d", http.StatusOK, rr.Code)
+		}
+	})
+}
+
+func TestDeleteProductCategoryHandler(t *testing.T) {
+	wrong := "/delete/" + wrongUUID
+	corr := "/delete/" + mockUUID.String()
+	url := "/delete/{iD}"
+
+	t.Run("should fail because id is not correct", func(t *testing.T) {
+		req, err := http.NewRequest(http.MethodDelete, wrong, strings.NewReader(""))
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer req.Body.Close()
+
+		rr := httptest.NewRecorder()
+		router := mux.NewRouter()
+		router.HandleFunc(url, handler.DeleteProductCategoryHandler).Methods(http.MethodDelete)
+
+		router.ServeHTTP(rr, req)
+		if rr.Code != http.StatusInternalServerError {
+			t.Error(rr.Body)
+			t.Errorf("expected code %d, got %d", http.StatusInternalServerError, rr.Code)
+		}
+
+	})
+
+	t.Run("should succeed because id is correct", func(t *testing.T) {
+		req, err := http.NewRequest(http.MethodDelete, corr, strings.NewReader(""))
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer req.Body.Close()
+
+		rr := httptest.NewRecorder()
+		router := mux.NewRouter()
+		router.HandleFunc(url, handler.DeleteProductCategoryHandler).Methods(http.MethodDelete)
+
+		router.ServeHTTP(rr, req)
+
+		if rr.Code != http.StatusOK {
+			t.Error(rr.Body)
+			t.Errorf("expected code %d, got %d", http.StatusOK, rr.Code)
 		}
 	})
 }
@@ -161,10 +248,18 @@ func (m *mockProductCategoryStore) GetProductCategoryByID(i uuid.UUID) (pp_produ
 
 func (m *mockProductCategoryStore) UpdateProductCategory(i c_productcategory.ProductCategory) (pp_productCategory.ProductCategoryDto, error) {
 	dto := pp_productCategory.ProductCategoryDto{}
+	if i.ModelID.ID != mockUUID {
+		return dto, errors.New("not nil error")
+	}
+	dto.ProductCategoryID = i.ModelID.ID.String()
+	dto.ProductCategoryName = i.ProductCategoryName
 	return dto, nil
 }
 
 func (m *mockProductCategoryStore) DeleteProductCategory(i uuid.UUID) error {
+	if i != mockUUID {
+		return errors.New("not nil")
+	}
 	return nil
 }
 

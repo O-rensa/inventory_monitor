@@ -42,7 +42,7 @@ func (pch *ProductCategoryHandler) RegisterRoutes(router *mux.Router) {
 func (pch *ProductCategoryHandler) CreateProductCategoryHandler(w http.ResponseWriter, r *http.Request) {
 	// decode request and store into paylaod variable
 	var payload pp_productCategory.CreateProductCategoryPayload
-	if err := ap_shared.ParseJSON(r, &payload); err == nil {
+	if err := ap_shared.ParseJSON(r, &payload); err != nil {
 		ap_shared.WriteError(w, http.StatusBadRequest, err)
 		return
 	}
