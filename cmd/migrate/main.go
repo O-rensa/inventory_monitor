@@ -5,6 +5,7 @@ import (
 
 	c_admin "github.com/o-rensa/iv/internal/core/admin"
 	c_brands "github.com/o-rensa/iv/internal/core/brands"
+	c_inventory "github.com/o-rensa/iv/internal/core/inventory"
 	c_productcategories "github.com/o-rensa/iv/internal/core/productcategories"
 	c_products "github.com/o-rensa/iv/internal/core/products"
 	"github.com/o-rensa/iv/pkg/initializers"
@@ -17,6 +18,7 @@ var modelsToMigrate = []interface{}{
 	&c_brands.Brand{},
 	&c_productcategories.ProductCategory{},
 	&c_products.Product{},
+	&c_inventory.Inventory{},
 }
 
 var db *gorm.DB
