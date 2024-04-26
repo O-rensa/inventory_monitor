@@ -27,7 +27,7 @@ func NewAdminStore(db *sql.DB) (*AdminStore, error) {
 }
 
 func (as *AdminStore) CreateAdmin(admin c_admin.Admin) error {
-	result := as.db.Create(admin)
+	result := as.db.Create(&admin)
 
 	return result.Error
 }

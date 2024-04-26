@@ -1,4 +1,4 @@
-package c_products
+package c_product
 
 import (
 	"github.com/google/uuid"

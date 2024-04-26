@@ -28,7 +28,7 @@ func NewBrandStore(db *sql.DB) (*BrandStore, error) {
 }
 
 func (bs *BrandStore) CreateBrand(brand c_brand.Brand) (pp_brand.BrandDto, error) {
-	res := bs.db.Create(brand)
+	res := bs.db.Create(&brand)
 	var dto pp_brand.BrandDto
 	if res.Error == nil {
 		dto = pp_brand.BrandDto{

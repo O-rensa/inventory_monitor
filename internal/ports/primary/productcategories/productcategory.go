@@ -10,6 +10,6 @@ type ProductCategoryDto struct {
 }
 
 type UpdateProductCategoryPayload struct {
-	ProductCategoryID   string `json:"iD"`
-	ProductCategoryName string `json:"productCategoryName"`
+	ProductCategoryID   string `json:"iD" validate:"required"`
+	ProductCategoryName string `json:"productCategoryName" validate:"required"`
 }

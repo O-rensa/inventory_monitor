@@ -29,7 +29,7 @@ func NewProductCategoryStore(db *sql.DB) (*ProductCategoryStore, error) {
 
 func (pcs *ProductCategoryStore) CreateProductCategory(input c_productcategory.ProductCategory) (pp_productCategory.ProductCategoryDto, error) {
 	var dto pp_productCategory.ProductCategoryDto
-	res := pcs.db.Create(input)
+	res := pcs.db.Create(&input)
 	if res.Error == nil {
 		dto = pp_productCategory.ProductCategoryDto{
 			ProductCategoryID:   input.ID.String(),
