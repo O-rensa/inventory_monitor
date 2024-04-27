@@ -3,6 +3,7 @@ package as_products
 import (
 	"database/sql"
 	"fmt"
+	"sync"
 
 	"github.com/google/uuid"
 	c_brand "github.com/o-rensa/iv/internal/core/brands"
@@ -13,6 +14,8 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
+
+var wg = new(sync.WaitGroup)
 
 type ProductStore struct {
 	db *gorm.DB
@@ -32,37 +35,34 @@ func NewProductStore(db *sql.DB) (*ProductStore, error) {
 }
 
 // private methods
-func (ps *ProductStore) getItemCount(prodID uuid.UUID) (uint, error) {
-	var iCount uint = 0
+func (ps *ProductStore) getItemCount(wg *sync.WaitGroup, prodID uuid.UUID, itemCount *uint, err *error) {
+	defer wg.Done()
 	var inv c_inventories.Inventory
 	res := ps.db.First(&inv, "productID = ?", prodID.String())
 	if res.Error == nil {
-		iCount = inv.ItemCount
+		*itemCount = inv.ItemCount
 	}
-
-	return iCount, res.Error
+	*err = res.Error
 }
 
-func (ps *ProductStore) getProductCategoryName(pCID uuid.UUID) (string, error) {
-	var n string = ""
+func (ps *ProductStore) getProductCategoryName(wg *sync.WaitGroup, pCID uuid.UUID, pCName *string, err *error) {
+	defer wg.Done()
 	var pc c_productcategory.ProductCategory
 	res := ps.db.First(&pc, "id = ?", pCID.String())
 	if res.Error == nil {
-		n = pc.ProductCategoryName
+		*pCName = pc.ProductCategoryName
 	}
-
-	return n, res.Error
+	*err = res.Error
 }
 
-func (ps *ProductStore) getBrandName(bID uuid.UUID) (string, error) {
-	var n string = ""
+func (ps *ProductStore) getBrandName(wg *sync.WaitGroup, bID uuid.UUID, bName *string, err *error) {
+	defer wg.Done()
 	var b c_brand.Brand
 	res := ps.db.First(&b, "id = ?", bID.String())
 	if res.Error == nil {
-		n = b.BrandName
+		*bName = b.BrandName
 	}
-
-	return n, nil
+	*err = res.Error
 }
 
 // public methods
@@ -98,18 +98,28 @@ func (ps *ProductStore) CreateProduct(input c_product.Product) (pp_product.Produ
 		return dto, err
 	}
 
+	wg.Add(2)
+
 	// get product category name
-	pCName, err := ps.getProductCategoryName(input.ProductCategoryID)
-	if err != nil {
-		tx.Rollback()
-		return dto, err
-	}
+	var pCName string
+	var pCNameErr error
+	go ps.getProductCategoryName(wg, input.ProductCategoryID, &pCName, &pCNameErr)
 
 	// get brand name
-	bName, err := ps.getBrandName(input.BrandID)
-	if err != nil {
+	var bName string
+	var bNameErr error
+	go ps.getBrandName(wg, input.BrandID, &bName, &bNameErr)
+
+	wg.Wait()
+
+	if pCNameErr != nil {
 		tx.Rollback()
-		return dto, err
+		return dto, pCNameErr
+	}
+
+	if bNameErr != nil {
+		tx.Rollback()
+		return dto, bNameErr
 	}
 
 	// insert values to dto
@@ -132,23 +142,36 @@ func (ps *ProductStore) GetAllProducts() ([]pp_product.ProductDto, error) {
 	if res.Error == nil {
 		retErr = res.Error
 		for _, v := range prods {
+			wg.Add(3)
 			// get item count
-			iCount, err := ps.getItemCount(v.ModelID.ID)
-			if err != nil {
-				retErr = err
+			var iCount uint
+			var iCountErr error
+			go ps.getItemCount(wg, v.ModelID.ID, &iCount, &iCountErr)
+
+			// get product category name
+			var pCName string
+			var pCNameErr error
+			go ps.getProductCategoryName(wg, v.ProductCategoryID, &pCName, &pCNameErr)
+
+			// get brand name
+			var bName string
+			var bNameErr error
+			go ps.getBrandName(wg, v.BrandID, &bName, &bNameErr)
+
+			wg.Wait()
+
+			if iCountErr != nil {
+				retErr = iCountErr
 				break
 			}
 
-			// get product category name
-			pCName, err := ps.getProductCategoryName(v.ProductCategoryID)
-			if err != nil {
-				retErr = err
+			if pCNameErr != nil {
+				retErr = pCNameErr
 				break
 			}
-			// get brand name
-			bName, err := ps.getBrandName(v.BrandID)
-			if err != nil {
-				retErr = err
+
+			if bNameErr != nil {
+				retErr = bNameErr
 				break
 			}
 
@@ -177,28 +200,40 @@ func (ps *ProductStore) GetProductByID(iD uuid.UUID) (pp_product.ProductDto, err
 	var p c_product.Product
 	res := ps.db.First(&p, "id = ?", iD.String())
 	if res.Error == nil {
+		wg.Add(3)
 		// get item count
-		iCount, err := ps.getItemCount(iD)
-		if err != nil {
-			return dto, err
-		}
+		var iCount uint
+		var iCountErr error
+		go ps.getItemCount(wg, iD, &iCount, &iCountErr)
 
 		// get product category name
-		pName, err := ps.getProductCategoryName(p.ProductCategoryID)
-		if err != nil {
-			return dto, err
-		}
+		var pCName string
+		var pCNameErr error
+		go ps.getProductCategoryName(wg, p.ProductCategoryID, &pCName, &pCNameErr)
 
 		// get brand name
-		bName, err := ps.getBrandName(p.BrandID)
-		if err != nil {
-			return dto, err
+		var bName string
+		var bNameErr error
+		go ps.getBrandName(wg, p.BrandID, &bName, &bNameErr)
+
+		wg.Wait()
+
+		if iCountErr != nil {
+			return dto, iCountErr
+		}
+
+		if pCNameErr != nil {
+			return dto, pCNameErr
+		}
+
+		if bNameErr != nil {
+			return dto, bNameErr
 		}
 
 		dto = pp_product.ProductDto{
 			ProductID:           p.ModelID.ID.String(),
 			ProductCategoryID:   p.ProductCategoryID.String(),
-			ProductCategoryName: pName,
+			ProductCategoryName: pCName,
 			BrandID:             p.BrandID.String(),
 			BrandName:           bName,
 			ProductName:         p.ProductName,
@@ -206,7 +241,7 @@ func (ps *ProductStore) GetProductByID(iD uuid.UUID) (pp_product.ProductDto, err
 		}
 	}
 
-	return dto, nil
+	return dto, res.Error
 }
 
 func (ps *ProductStore) UpdateProduct(input c_product.Product) (pp_product.ProductDto, error) {
@@ -224,22 +259,34 @@ func (ps *ProductStore) UpdateProduct(input c_product.Product) (pp_product.Produ
 		"productName":       input.ProductName,
 	})
 	if updated.Error == nil {
+		wg.Add(3)
 		// get item count
-		iCount, err := ps.getItemCount(input.ModelID.ID)
-		if err != nil {
-			return dto, err
-		}
+		var iCount uint
+		var iCountErr error
+		go ps.getItemCount(wg, input.ModelID.ID, &iCount, &iCountErr)
 
 		// get product category name
-		pCName, err := ps.getProductCategoryName(input.ProductCategoryID)
-		if err != nil {
-			return dto, err
-		}
+		var pCName string
+		var pCNameErr error
+		go ps.getProductCategoryName(wg, input.ProductCategoryID, &pCName, &pCNameErr)
 
 		// get brand name
-		bName, err := ps.getBrandName(input.BrandID)
-		if err != nil {
-			return dto, err
+		var bName string
+		var bNameErr error
+		go ps.getBrandName(wg, input.BrandID, &bName, &bNameErr)
+
+		wg.Wait()
+
+		if iCountErr != nil {
+			return dto, iCountErr
+		}
+
+		if pCNameErr != nil {
+			return dto, pCNameErr
+		}
+
+		if bNameErr != nil {
+			return dto, bNameErr
 		}
 
 		dto = pp_product.ProductDto{
@@ -258,11 +305,7 @@ func (ps *ProductStore) UpdateProduct(input c_product.Product) (pp_product.Produ
 
 func (ps *ProductStore) UpdateProductItemCount(prodID uuid.UUID, count uint) error {
 	item := ps.db.Model(&c_inventories.Inventory{}).Where("productID = ?", prodID).Update("itemCount", count)
-	if item.Error != nil {
-		return item.Error
-	}
-
-	return nil
+	return item.Error
 }
 
 func (ps *ProductStore) DeleteProduct(iD uuid.UUID) error {
