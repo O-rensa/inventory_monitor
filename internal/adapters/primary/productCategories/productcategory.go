@@ -80,7 +80,7 @@ func (pch *ProductCategoryHandler) GetProductCategoryByIDHandler(w http.Response
 	vars := mux.Vars(r)
 	str, ok := vars["iD"]
 	if !ok {
-		ap_shared.WriteError(w, http.StatusBadRequest, fmt.Errorf("missing Product Category ID"))
+		ap_shared.WriteError(w, http.StatusBadRequest, fmt.Errorf("missing product category id"))
 		return
 	}
 
@@ -126,7 +126,7 @@ func (pch *ProductCategoryHandler) DeleteProductCategoryHandler(w http.ResponseW
 	vars := mux.Vars(r)
 	str, ok := vars["iD"]
 	if !ok {
-		ap_shared.WriteError(w, http.StatusBadRequest, fmt.Errorf("missing product category ID"))
+		ap_shared.WriteError(w, http.StatusBadRequest, fmt.Errorf("missing product category id"))
 		return
 	}
 

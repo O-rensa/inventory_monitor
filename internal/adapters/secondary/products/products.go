@@ -35,7 +35,7 @@ func NewProductStore(db *sql.DB) (*ProductStore, error) {
 }
 
 // private methods
-func (ps *ProductStore) getItemCount(wg *sync.WaitGroup, prodID uuid.UUID, itemCount *uint, err *error) {
+func (ps *ProductStore) getItemCount(wg *sync.WaitGroup, prodID uuid.UUID, itemCount *uint64, err *error) {
 	defer wg.Done()
 	var inv c_inventories.Inventory
 	res := ps.db.First(&inv, "productID = ?", prodID.String())
@@ -144,7 +144,7 @@ func (ps *ProductStore) GetAllProducts() ([]pp_product.ProductDto, error) {
 		for _, v := range prods {
 			wg.Add(3)
 			// get item count
-			var iCount uint
+			var iCount uint64
 			var iCountErr error
 			go ps.getItemCount(wg, v.ModelID.ID, &iCount, &iCountErr)
 
@@ -202,7 +202,7 @@ func (ps *ProductStore) GetProductByID(iD uuid.UUID) (pp_product.ProductDto, err
 	if res.Error == nil {
 		wg.Add(3)
 		// get item count
-		var iCount uint
+		var iCount uint64
 		var iCountErr error
 		go ps.getItemCount(wg, iD, &iCount, &iCountErr)
 
@@ -261,7 +261,7 @@ func (ps *ProductStore) UpdateProduct(input c_product.Product) (pp_product.Produ
 	if updated.Error == nil {
 		wg.Add(3)
 		// get item count
-		var iCount uint
+		var iCount uint64
 		var iCountErr error
 		go ps.getItemCount(wg, input.ModelID.ID, &iCount, &iCountErr)
 
@@ -303,7 +303,7 @@ func (ps *ProductStore) UpdateProduct(input c_product.Product) (pp_product.Produ
 	return dto, res.Error
 }
 
-func (ps *ProductStore) UpdateProductItemCount(prodID uuid.UUID, count uint) error {
+func (ps *ProductStore) UpdateProductItemCount(prodID uuid.UUID, count uint64) error {
 	item := ps.db.Model(&c_inventories.Inventory{}).Where("productID = ?", prodID).Update("itemCount", count)
 	return item.Error
 }

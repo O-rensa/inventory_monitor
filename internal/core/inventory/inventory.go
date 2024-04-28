@@ -10,5 +10,5 @@ type Inventory struct {
 	*c_sharedTypes.BaseModel
 	ProductID uuid.UUID          `gorm:"primaryKey;column:productID"`
 	Product   c_products.Product `gorm:"foreignKey:ProductID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
-	ItemCount uint               `gorm:"column:itemCount"`
+	ItemCount uint64             `gorm:"column:itemCount"`
 }

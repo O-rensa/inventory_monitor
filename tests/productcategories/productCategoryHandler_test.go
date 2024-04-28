@@ -43,7 +43,7 @@ func TestCreateProductCategoryHandler(t *testing.T) {
 		router.ServeHTTP(rr, req)
 		if rr.Code != http.StatusBadRequest {
 			t.Error(rr.Body)
-			t.Errorf("expected status cure %d, got %d", http.StatusBadRequest, rr.Code)
+			t.Errorf("expected status code %d, got %d", http.StatusBadRequest, rr.Code)
 		}
 	})
 

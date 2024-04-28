@@ -22,3 +22,8 @@ type ProductDto struct {
 	ProductName         string `json:"productName"`
 	ItemCount           string `json:"itemCount"`
 }
+
+type UpdateProductItemCount struct {
+	ProductID string `json:"productID" validate:"required"`
+	ItemCount string `json:"itemCount" validate:"required"`
+}

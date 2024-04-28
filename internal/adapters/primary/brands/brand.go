@@ -76,7 +76,7 @@ func (bh *BrandHandler) GetBrandByIDHandler(w http.ResponseWriter, r *http.Reque
 	vars := mux.Vars(r)
 	str, ok := vars["iD"]
 	if !ok {
-		ap_shared.WriteError(w, http.StatusBadRequest, fmt.Errorf("missing brand ID"))
+		ap_shared.WriteError(w, http.StatusBadRequest, fmt.Errorf("missing brand id"))
 		return
 	}
 
@@ -122,7 +122,7 @@ func (bh *BrandHandler) DeleteBrandHandler(w http.ResponseWriter, r *http.Reques
 	vars := mux.Vars(r)
 	str, ok := vars["iD"]
 	if !ok {
-		ap_shared.WriteError(w, http.StatusBadRequest, fmt.Errorf("missing brand ID"))
+		ap_shared.WriteError(w, http.StatusBadRequest, fmt.Errorf("missing brand id"))
 		return
 	}
 
