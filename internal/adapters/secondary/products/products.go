@@ -13,6 +13,7 @@ import (
 	pp_product "github.com/o-rensa/iv/internal/ports/primary/products"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 var wg = new(sync.WaitGroup)
@@ -87,7 +88,7 @@ func (ps *ProductStore) CreateProduct(input c_product.Product) (pp_product.Produ
 	}
 
 	// create product
-	if err := tx.Create(&input).Error; err != nil {
+	if err := tx.Omit(clause.Associations).Create(&input).Error; err != nil {
 		tx.Rollback()
 		return dto, err
 	}
